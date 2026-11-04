@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dugout Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<style>
+/* Layout: sticky scoreboard header with section tabs; each section is a working tool on a calm field-toned ground; depth chart is drawn on a real diamond. */
+:root{
+  --bg:#eef2ef; --surface:#ffffff; --surface-2:#f5f8f6; --ink:#14212c; --muted:#5a6872; --line:#d6ded9;
+  --navy:#1b3556; --navy-ink:#ffffff; --accent:#1b3556; --clay:#b8622c; --clay-soft:#f3e3d7;
+  --grass:#3d7a4b; --grass-2:#468955; --dirt:#c98b5c; --chalk:#ffffff;
+  --good:#2f7d4f; --good-soft:#dcefe3; --warn:#9a6a10; --bad:#b23a3a; --bad-soft:#f6dede;
+  --shadow:0 1px 2px rgba(20,33,44,.06),0 4px 14px rgba(20,33,44,.06);
+  --display:"Saira Extra Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1519; --surface:#152027; --surface-2:#1a262e; --ink:#e6ece8; --muted:#97a5ad; --line:#28363f;
+  --navy:#20406a; --navy-ink:#ffffff; --accent:#8db4e2; --clay:#d98552; --clay-soft:#3a2a20;
+  --grass:#2c5a37; --grass-2:#336640; --dirt:#8c5f3e; --chalk:#e9efe9;
+  --good:#6cc191; --good-soft:#1d3a2a; --warn:#e0b35a; --bad:#ec8080; --bad-soft:#3b2222;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1519; --surface:#152027; --surface-2:#1a262e; --ink:#e6ece8; --muted:#97a5ad; --line:#28363f;
+  --navy:#20406a; --navy-ink:#ffffff; --accent:#8db4e2; --clay:#d98552; --clay-soft:#3a2a20;
+  --grass:#2c5a37; --grass-2:#336640; --dirt:#8c5f3e; --chalk:#e9efe9;
+  --good:#6cc191; --good-soft:#1d3a2a; --warn:#e0b35a; --bad:#ec8080; --bad-soft:#3b2222;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:.01em;text-wrap:balance;margin:0;line-height:1.05}
+h1{font-size:2.4rem;text-transform:uppercase}
+h2{font-size:1.5rem;text-transform:uppercase}
+h3{font-size:1.15rem;text-transform:uppercase}
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--navy-ink)}
+.top .wrap{display:flex;align-items:center;gap:20px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.6rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.brand svg{flex:none}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs a{color:rgba(255,255,255,.75);text-decoration:none;font-family:var(--display);font-weight:600;font-size:1.15rem;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:6px;white-space:nowrap}
+nav.tabs a:hover{color:#fff;background:rgba(255,255,255,.08)}
+nav.tabs a[aria-current="page"]{color:#fff;background:rgba(255,255,255,.14);box-shadow:inset 0 -3px 0 var(--clay)}
+.status{font-size:.78rem;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.status i{width:8px;height:8px;border-radius:50%;background:#9fb3c8;display:inline-block}
+.status.shared i{background:#7fd39d}
+.status.local i{background:#f0c36a}
+
+main{padding-block:24px 64px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.page-head p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.eyebrow{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.9rem;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--clay);border-color:var(--clay);color:#fff}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.small{padding:4px 10px;font-size:.8rem}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink);border-color:var(--line)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.danger.solid{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:6px;width:28px;height:28px;display:inline-grid;place-items:center;font-size:1rem}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button,.seg a{border:0;background:transparent;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:.9rem;color:var(--muted);text-decoration:none}
+.seg [aria-pressed="true"],.seg [aria-current="page"]{background:var(--navy);color:#fff}
+.seg .count{font-family:var(--mono);font-size:.78rem;opacity:.8;margin-left:4px}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],input[type=time],input[type=search],select,textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--clay);outline-offset:-1px;border-color:transparent}
+label.f{display:grid;gap:4px;font-size:.82rem;font-weight:600;color:var(--muted)}
+label.f > span{letter-spacing:.02em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+
+/* banner */
+.banner{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--clay-soft);border:1px solid var(--clay);color:var(--ink);border-radius:var(--r);padding:10px 14px;margin-bottom:18px;font-size:.9rem}
+.banner b{font-weight:600}
+.banner .sp{flex:1;min-width:200px}
+.note{color:var(--muted);font-size:.85rem}
+
+/* tables */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th{text-align:left;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.jersey{font-family:var(--mono);font-weight:600;display:inline-grid;place-items:center;min-width:36px;height:30px;padding:0 6px;border-radius:6px;background:var(--navy);color:#fff;font-size:.9rem;font-variant-numeric:tabular-nums}
+.jersey.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.pos{display:inline-block;font-family:var(--mono);font-size:.78rem;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--clay-soft);color:var(--clay);margin-right:3px}
+.pos.sec{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.name{font-weight:600}
+.sub{color:var(--muted);font-size:.8rem}
+.actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:nowrap}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+.empty h3{color:var(--ink);margin-bottom:6px}
+.empty .row{justify-content:center;margin-top:14px}
+
+/* depth chart */
+.field{position:relative;width:100%;max-width:1040px;margin:0 auto;aspect-ratio:1000/900}
+.field svg.turf{position:absolute;inset:0;width:100%;height:100%}
+.spot{position:absolute;transform:translate(-50%,-50%);width:17.5%;min-width:132px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);overflow:hidden}
+.pcard header{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:6px 10px;background:var(--navy);color:#fff}
+.pcard header b{font-family:var(--display);font-size:1.25rem;letter-spacing:.04em}
+.pcard header span{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dlist{list-style:none;margin:0;padding:4px;counter-reset:rank;min-height:10px}
+.dlist li{counter-increment:rank;display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;font-size:.84rem;cursor:grab;user-select:none;background:var(--surface)}
+.dlist li:hover{background:var(--surface-2)}
+.dlist li::before{content:counter(rank);font-family:var(--mono);font-size:.7rem;font-weight:600;width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;background:var(--surface-2);color:var(--muted);flex:none;border:1px solid var(--line)}
+.dlist li:first-child::before{background:var(--clay);color:#fff;border-color:var(--clay)}
+.dlist li .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dlist li .no{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.dlist li .mv{display:none;gap:0}
+.dlist li:focus-within .mv,.dlist li:hover .mv{display:inline-flex}
+.dlist li .mv button{width:20px;height:20px;font-size:.7rem}
+.dlist li.ghost{opacity:.35}
+.dlist li.chosen{box-shadow:0 0 0 2px var(--clay) inset}
+.open-spot{list-style:none;margin:0 4px 4px;padding:5px 8px;border:1px dashed var(--line);border-radius:6px;font-size:.78rem;color:var(--muted)}
+.depth-legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:.85rem;margin-top:14px;justify-content:center}
+@media (max-width:820px){
+  .field{aspect-ratio:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .field svg.turf{display:none}
+  .spot{position:static;transform:none;width:auto;min-width:0}
+  .dlist li .mv{display:inline-flex}
+}
+
+/* practice */
+.plan-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:14px;margin-bottom:14px;align-items:end}
+.stat .v{font-family:var(--display);font-size:1.7rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat .k{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.meter{height:8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--good);border-radius:99px}
+.drills{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.drill{display:grid;grid-template-columns:34px 128px minmax(0,1fr) 92px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.drill:last-child{border-bottom:0}
+.drill .time{font-family:var(--mono);font-size:.82rem;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.drill .time small{display:block;color:var(--muted);font-size:.72rem}
+.drill.done{background:var(--good-soft)}
+.drill.done .dname{text-decoration:line-through;color:var(--muted)}
+.drill.now{box-shadow:inset 4px 0 0 var(--clay)}
+.drill input[type=checkbox]{width:22px;height:22px;accent-color:var(--good);cursor:pointer}
+.mins{display:flex;align-items:center;gap:4px}
+.mins input{text-align:right;font-variant-numeric:tabular-nums}
+.mins span{font-size:.78rem;color:var(--muted)}
+.drill .ctl{display:flex;gap:0}
+.drill-head{display:grid;grid-template-columns:34px 128px minmax(0,1fr) 92px minmax(0,1fr) auto;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--surface-2);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-radius:var(--r) var(--r) 0 0}
+@media (max-width:760px){
+  .drill-head{display:none}
+  .drill{grid-template-columns:30px 1fr 84px;grid-template-areas:"chk time ctl" "chk name mins" "chk notes notes"}
+  .drill > :nth-child(1){grid-area:chk;align-self:start;margin-top:4px}
+  .drill > :nth-child(2){grid-area:time}
+  .drill > :nth-child(3){grid-area:name}
+  .drill > :nth-child(4){grid-area:mins}
+  .drill > :nth-child(5){grid-area:notes}
+  .drill > :nth-child(6){grid-area:ctl;justify-self:end}
+}
+
+/* fundraising */
+.fund-top{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;margin-bottom:22px}
+@media (max-width:760px){.fund-top{grid-template-columns:1fr}}
+.donut-card{padding:20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.donut{position:relative;width:220px;height:220px;flex:none;max-width:100%}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.donut .center .v{font-family:var(--display);font-weight:700;font-size:2.4rem;line-height:1}
+.donut .center .k{font-size:.75rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.legend{display:grid;gap:12px;min-width:0;flex:1}
+.legend .li{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:baseline}
+.legend .sw{width:12px;height:12px;border-radius:3px;align-self:center}
+.legend .amt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.camp-card{padding:20px;display:grid;gap:14px;align-content:start;border-top:4px solid var(--clay)}
+.camp-card .big{font-family:var(--display);font-weight:700;font-size:3rem;line-height:1;font-variant-numeric:tabular-nums}
+.camp-card .meter{height:12px}
+.camp-card .meter i{background:var(--clay)}
+.camp-card dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0}
+.camp-card dt{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.camp-card dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--clay)}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--clay)}
+.chip{display:inline-block;font-size:.78rem;padding:2px 8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);white-space:nowrap}
+.chip.cur{background:var(--clay-soft);border-color:var(--clay);color:var(--clay);font-weight:600}
+.amount{font-family:var(--mono);font-weight:600}
+.res{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:5px;font-family:var(--mono);font-weight:600;font-size:.8rem}
+.res.W{background:var(--good-soft);color:var(--good)}
+.res.L{background:var(--bad-soft);color:var(--bad)}
+.res.T{background:var(--surface-2);color:var(--muted)}
+.checks input[type=radio]{accent-color:var(--clay)}
+tfoot td{font-weight:600;background:var(--surface-2)}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,18,24,.55);z-index:20;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow-y:auto}
+.modal{width:min(560px,100%);background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+.modal-head{background:var(--navy);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.modal-head .icon-btn{color:#fff}
+.modal-head .icon-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.modal form{padding:20px;display:grid;gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:480px){.grid2,.grid3{grid-template-columns:1fr}}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-family:var(--mono);font-size:.8rem;cursor:pointer;color:var(--ink);font-weight:500}
+.checks input{accent-color:var(--clay)}
+.checks label:has(input:checked){background:var(--clay-soft);border-color:var(--clay);color:var(--clay)}
+.checks label:has(input:disabled){opacity:.4;cursor:not-allowed}
+.form-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line);margin-top:4px;padding-block:14px 0}
+.err{color:var(--bad);font-size:.85rem;min-height:1em}
+.confirm-box{background:var(--bad-soft);border:1px solid var(--bad);border-radius:8px;padding:10px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.88rem}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:.9rem;z-index:30;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.search{max-width:280px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12.5" fill="#fff"/><path d="M6.5 5.5c3 2.6 3 14.4 0 17M21.5 5.5c-3 2.6-3 14.4 0 17" fill="none" stroke="#c4552a" stroke-width="1.6" stroke-dasharray="2 1.6"/></svg>
+      Dugout Desk
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#roster" data-view="roster">Roster</a>
+      <a href="#schedule" data-view="schedule">Schedule</a>
+      <a href="#depth" data-view="depth">Depth Chart</a>
+      <a href="#practice" data-view="practice">Practice Plan</a>
+      <a href="#alumni" data-view="alumni">Alumni</a>
+      <a href="#fundraising" data-view="fundraising">Fund Raising</a>
+    </nav>
+    <div id="status" class="status"><i></i><span>Connecting…</span></div>
+    <button id="signout" class="btn small ghost" data-act="signout" style="color:#fff" hidden>Sign out</button>
+  </div>
+</header>
+<main class="wrap" id="main" aria-live="polite"></main>
+<div id="modal-root"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="firebase-config.js"></script>
+<script>
+/* ---------- constants ---------- */
+const POS = [
+  {k:'P',n:'Pitcher'},{k:'C',n:'Catcher'},{k:'1B',n:'First Base'},{k:'2B',n:'Second Base'},{k:'3B',n:'Third Base'},
+  {k:'SS',n:'Shortstop'},{k:'LF',n:'Left Field'},{k:'CF',n:'Center Field'},{k:'RF',n:'Right Field'},{k:'DH',n:'Designated Hitter'}];
+const POS_NAME = Object.fromEntries(POS.map(p=>[p.k,p.n]));
+// card centers on a 1000 x 900 field
+const SPOTS = {CF:[500,115],LF:[175,255],RF:[825,255],SS:[335,430],'2B':[665,430],'3B':[160,610],'1B':[840,610],P:[500,600],C:[500,790],DH:[840,800]};
+const GRADES = {9:'Fr',10:'So',11:'Jr',12:'Sr'};
+const COLS = ['players','games','alumni','donations','plans','config'];
+const EX_COLS = ['players','games','alumni','donations','plans'];
+const TEMPLATE = [
+  ['Dynamic warm-up & bands',15],['Throwing progression',15],['Infield / outfield',20],['PFP & bunt coverage',15],
+  ['Batting practice – stations',40],['Base running',15],['Conditioning',10],['Team talk',5]];
+
+/* Example data — used only when this page can't reach its shared database (for example, opened as a local file). */
+const SAMPLE = {
+ players:{
+  p01:{name:'Mateo Alvarez',number:'7',primary:'SS',secondary:['2B','3B'],grade:12,bats:'R',throws:'R',level:'varsity'},
+  p02:{name:'Caleb Turner',number:'22',primary:'P',secondary:['1B'],grade:12,bats:'L',throws:'L',level:'varsity'},
+  p03:{name:'Jaylen Brooks',number:'3',primary:'CF',secondary:['LF','RF'],grade:11,bats:'L',throws:'R',level:'varsity'},
+  p04:{name:'Owen Mitchell',number:'15',primary:'C',secondary:['1B'],grade:12,bats:'R',throws:'R',level:'varsity'},
+  p05:{name:'Ethan Park',number:'9',primary:'2B',secondary:['SS'],grade:11,bats:'S',throws:'R',level:'varsity'},
+  p06:{name:'Lucas Bennett',number:'44',primary:'1B',secondary:['DH','LF'],grade:12,bats:'L',throws:'L',level:'varsity'},
+  p07:{name:'Nolan Hayes',number:'18',primary:'P',secondary:['RF'],grade:11,bats:'R',throws:'R',level:'varsity'},
+  p08:{name:'Isaiah Grant',number:'12',primary:'3B',secondary:['SS','P'],grade:12,bats:'R',throws:'R',level:'varsity'},
+  p09:{name:'Wyatt Coleman',number:'5',primary:'LF',secondary:['CF'],grade:10,bats:'L',throws:'L',level:'varsity'},
+  p10:{name:'Diego Ramirez',number:'27',primary:'RF',secondary:['P'],grade:11,bats:'R',throws:'R',level:'varsity'},
+  p11:{name:'Brady Sullivan',number:'33',primary:'P',secondary:[],grade:12,bats:'R',throws:'R',level:'varsity'},
+  p12:{name:'Tyler Nguyen',number:'2',primary:'SS',secondary:['2B','CF'],grade:10,bats:'R',throws:'R',level:'varsity'},
+  p13:{name:'Garrett Fox',number:'10',primary:'C',secondary:['3B'],grade:11,bats:'R',throws:'R',level:'varsity'},
+  p14:{name:'Marcus Webb',number:'24',primary:'DH',secondary:['1B'],grade:12,bats:'R',throws:'R',level:'varsity'},
+  p15:{name:'Aiden Cole',number:'31',primary:'P',secondary:['1B'],grade:10,bats:'L',throws:'L',level:'varsity'},
+  p16:{name:'Sam Ortiz',number:'6',primary:'2B',secondary:['SS'],grade:10,bats:'R',throws:'R',level:'jv'},
+  p17:{name:'Henry Walsh',number:'14',primary:'P',secondary:['3B'],grade:9,bats:'R',throws:'R',level:'jv'},
+  p18:{name:'Leo Martinez',number:'8',primary:'C',secondary:[],grade:9,bats:'R',throws:'R',level:'jv'},
+  p19:{name:'Cooper Reed',number:'20',primary:'CF',secondary:['LF'],grade:9,bats:'L',throws:'L',level:'jv'},
+  p20:{name:'Eli Thompson',number:'11',primary:'1B',secondary:['P'],grade:10,bats:'L',throws:'L',level:'jv'},
+  p21:{name:'Ryan Kim',number:'4',primary:'SS',secondary:['3B'],grade:9,bats:'R',throws:'R',level:'jv'},
+  p22:{name:'Jackson Price',number:'17',primary:'3B',secondary:[],grade:10,bats:'R',throws:'R',level:'jv'},
+  p23:{name:'Miles Carter',number:'25',primary:'RF',secondary:['LF'],grade:9,bats:'S',throws:'R',level:'jv'},
+  p24:{name:'Dominic Shaw',number:'19',primary:'P',secondary:[],grade:10,bats:'L',throws:'L',level:'jv'}},
+ games:{
+  g01:{date:'2026-10-24',time:'11:00',opponent:'Lakeview',type:'nonconf',site:'home',level:'varsity',location:'',us:6,them:3},
+  g02:{date:'2026-10-31',time:'10:00',opponent:'Cedar Ridge',type:'league',site:'away',level:'varsity',location:'',us:2,them:4},
+  g03:{date:'2026-11-07',time:'16:00',opponent:'North Valley',type:'league',site:'home',level:'varsity',location:'',us:'',them:''},
+  g04:{date:'2026-11-10',time:'16:30',opponent:'St. Augustine',type:'nonconf',site:'away',level:'varsity',location:'Augustine Field',us:'',them:''},
+  g05:{date:'2026-11-14',time:'12:00',opponent:'Westbrook',type:'league',site:'home',level:'varsity',location:'',us:'',them:''},
+  g06:{date:'2026-11-08',time:'10:00',opponent:'North Valley JV',type:'league',site:'away',level:'jv',location:'',us:'',them:''}},
+ alumni:{
+  a01:{name:'Chris Delgado',email:'chris.delgado@example.com',phone:'(555) 201-4417',number:'1',gradYear:2026},
+  a02:{name:'Bryce Holloway',email:'bholloway@example.com',phone:'(555) 318-0952',number:'21',gradYear:2026},
+  a03:{name:'Andre Lewis',email:'andre.lewis@example.com',phone:'(555) 744-2380',number:'16',gradYear:2025},
+  a04:{name:'Kyle Ferguson',email:'kferg30@example.com',phone:'(555) 662-1175',number:'30',gradYear:2025},
+  a05:{name:'Zach Moreno',email:'zmoreno@example.com',phone:'(555) 409-8834',number:'13',gradYear:2024}},
+ donations:{
+  d01:{date:'2026-03-14',campaign:'Spring Sponsor Banners',amount:1500,source:'Riverside Auto'},
+  d02:{date:'2026-03-28',campaign:'Spring Sponsor Banners',amount:750,source:'Main St. Dental'},
+  d03:{date:'2026-04-10',campaign:'Spring Sponsor Banners',amount:500,source:'Hometown Pizza'},
+  d04:{date:'2026-06-21',campaign:'Alumni Golf Outing',amount:3240,source:'Outing registrations'},
+  d05:{date:'2026-07-12',campaign:'Summer Concessions',amount:1180,source:'Summer league weekends'},
+  d06:{date:'2026-08-15',campaign:'Alumni Golf Outing',amount:400,source:'Hole sponsor'},
+  d07:{date:'2026-09-20',campaign:'Fall Hit-a-thon',amount:1250,source:'Pledges – week 1'},
+  d08:{date:'2026-10-04',campaign:'Fall Hit-a-thon',amount:980,source:'Pledges – week 2'},
+  d09:{date:'2026-10-18',campaign:'Fall Hit-a-thon',amount:1425,source:'Pledges – week 3'},
+  d10:{date:'2026-10-30',campaign:'Fall Hit-a-thon',amount:610,source:'Online pledges'}},
+ plans:{
+  '2026-11-03':{start:'15:30',drills:[
+   {id:'k1',name:'Dynamic warm-up & bands',minutes:15,done:true,notes:'Jog, A-skips, J-bands'},
+   {id:'k2',name:'Throwing progression',minutes:15,done:true,notes:'Long toss to 150 ft'},
+   {id:'k3',name:'Infield: PFP & bunt coverage',minutes:20,done:false,notes:'Pitchers + corners'},
+   {id:'k4',name:'Outfield: drop steps & crow hops',minutes:20,done:false,notes:''},
+   {id:'k5',name:'Batting practice – 3 stations',minutes:40,done:false,notes:'Cage, tee, live BP'},
+   {id:'k6',name:'Base running: 1st-to-3rd reads',minutes:15,done:false,notes:''},
+   {id:'k7',name:'Conditioning: poles',minutes:10,done:false,notes:''},
+   {id:'k8',name:'Team talk',minutes:5,done:false,notes:''}]}},
+ config:{
+  depth:{varsity:{P:['p02','p07','p11','p15']}},
+  fundraising:{target:25000,currentCampaign:'Fall Hit-a-thon',campaignGoal:8000,campaignEnd:'2026-11-22'}}
+};
+// every sample record except config is flagged as an example
+for(const c of EX_COLS) for(const k in SAMPLE[c]) SAMPLE[c][k].example=true;
+
+/* ---------- state ---------- */
+const S = {players:{},games:{},alumni:{},donations:{},plans:{},config:{}};
+const today = (()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
+const ui = {view:'roster', level:'varsity', depthLevel:'varsity', schedLevel:'varsity', planDate:today, alumniQ:'', campFilter:'', confirmClear:false};
+let mode='loading', db=null, readOnly=false, loadNote='';
+let dragging=false, needRender=false;
+const pending={}, queues={}, timers={};
+const $ = s=>document.querySelector(s);
+const esc = v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const money = n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n||0);
+const clone = o=>JSON.parse(JSON.stringify(o??{}));
+const fmtDate = s=>{if(!s)return '';const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
+
+/* ---------- storage ---------- */
+function loadLocal(){
+  let saved=null;
+  try{ saved=JSON.parse(localStorage.getItem('dugout-desk')||'null') }catch(e){}
+  const src = saved || clone(SAMPLE);
+  for(const c of COLS) S[c]=src[c]||{};
+}
+function saveLocal(){ try{ localStorage.setItem('dugout-desk',JSON.stringify(S)) }catch(e){} }
+
+let unsubs=[], allLoaded=false;
+function subscribe(){
+  const loaded=new Set(); allLoaded=false;
+  unsubs.forEach(u=>{try{u()}catch(e){}}); unsubs=[];
+  const t=setTimeout(()=>{ if(loaded.size<COLS.length){ loadNote='The team database is taking a while to answer. What you see may be incomplete.'; render(); } },10000);
+  for(const c of COLS){
+    unsubs.push(db.collection(c).onSnapshot(snap=>{
+      const m={}; for(const d of snap.docs) m[d.id]=d.data();
+      for(const key in pending){ const [pc,pid]=key.split('|'); if(pc!==c) continue; if(pending[key]===null) delete m[pid]; else m[pid]=pending[key]; }
+      S[c]=m;
+      if(!snap.metadata.fromCache){ loaded.add(c); if(loaded.size===COLS.length){ allLoaded=true; clearTimeout(t); if(loadNote.startsWith('The team')) loadNote=''; } }
+      render();
+    }, err=>{ clearTimeout(t);
+      if(err&&err.code==='permission-denied'){ mode='denied'; render(); return; }
+      loadNote='Couldn’t load the team database ('+(err&&err.code||'error')+'). Reload the page to try again.'; render(); }));
+  }
+}
+
+/* ---------- Firebase (used when firebase-config.js is filled in, e.g. on GitHub Pages) ---------- */
+let fbUser=null;
+const FB_VER='10.12.2';
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+async function initFirebase(cfg){
+  try{ for(const f of ['app','auth','firestore']) await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-${f}-compat.js`); }
+  catch(e){ mode='local'; loadNote='Couldn’t reach the team database. Changes are saved in this browser until you reload with a connection.'; loadLocal(); render(); return; }
+  firebase.initializeApp(cfg);
+  firebase.auth().onAuthStateChanged(u=>{
+    fbUser=u; readOnly=false;
+    unsubs.forEach(x=>{try{x()}catch(e){}}); unsubs=[];
+    for(const c of COLS) S[c]={};
+    if(!u){ mode='signin'; render(); return; }
+    db=firebase.firestore(); mode='shared'; render(); subscribe();
+  });
+}
+function viewSignin(){
+  return `<div class="card empty" style="max-width:440px;margin:40px auto">
+    <h2 style="margin-bottom:8px">Staff sign-in</h2>
+    <p>Sign in with the Google account your head coach added to the staff list.</p>
+    <div class="row"><button class="btn primary" data-act="signin">Sign in with Google</button></div></div>`;
+}
+function viewDenied(){
+  return `<div class="card empty" style="max-width:480px;margin:40px auto">
+    <h2 style="margin-bottom:8px">Not on the staff list</h2>
+    <p><b>${esc(fbUser&&fbUser.email)}</b> doesn’t have access yet. Ask your head coach to add this email to the staff list, or sign in with a different account.</p>
+    <div class="row"><button class="btn" data-act="signout">Sign out</button></div></div>`;
+}
+function enqueue(key,fn){
+  const q=queues[key]||(queues[key]={busy:false,next:null});
+  q.next=fn; if(!q.busy) drain(key,q);
+}
+async function drain(key,q){
+  q.busy=true;
+  while(q.next){ const f=q.next; q.next=null;
+    try{ await f() }catch(e){
+      if(e&&e.code==='unavailable'){ await new Promise(r=>setTimeout(r,600+Math.random()*800)); try{await f()}catch(e2){ writeErr(e2) } }
+      else writeErr(e);
+    }
+  }
+  q.busy=false; delete pending[key];
+}
+function writeErr(e){
+  const c=e&&e.code;
+  if(c==='invalid_argument'||c==='not_granted'||c==='permission-denied'){ readOnly=true; toast('You have view-only access, so changes here aren’t saved.'); render(); }
+  else if(c==='quota_exceeded') toast('The team database is full. Remove old records, then try again.');
+  else toast('A change didn’t save. Check your connection and try again.');
+}
+function put(col,id,data,opt={}){
+  S[col][id]=data;
+  if(!opt.silent) render();
+  if(mode==='local'){ saveLocal(); return; }
+  const key=col+'|'+id; pending[key]=data;
+  const go=()=>enqueue(key,()=>db.collection(col).doc(id).set(S[col][id]||data));
+  if(opt.debounce){ clearTimeout(timers[key]); timers[key]=setTimeout(go,opt.debounce); } else go();
+}
+function del(col,id){
+  delete S[col][id]; render();
+  if(mode==='local'){ saveLocal(); return; }
+  const key=col+'|'+id; pending[key]=null; clearTimeout(timers[key]);
+  enqueue(key,()=>db.collection(col).doc(id).delete());
+}
+
+/* ---------- helpers ---------- */
+const playersAt = lvl=>Object.entries(S.players).map(([id,p])=>({id,...p})).filter(p=>p.level===lvl);
+const byNum = (a,b)=>(parseInt(a.number)||999)-(parseInt(b.number)||999)||a.name.localeCompare(b.name);
+function depthFor(lvl,pos){
+  const order=(S.config.depth&&S.config.depth[lvl]&&S.config.depth[lvl][pos])||[];
+  const list=playersAt(lvl).filter(p=>p.primary===pos).sort(byNum);
+  return list.sort((a,b)=>{const ia=order.indexOf(a.id),ib=order.indexOf(b.id);return (ia<0?999:ia)-(ib<0?999:ib)});
+}
+function saveDepth(lvl,pos,ids){
+  const d=clone(S.config.depth); d[lvl]=d[lvl]||{}; d[lvl][pos]=ids; put('config','depth',d);
+}
+function hasExamples(){ return EX_COLS.some(c=>Object.values(S[c]).some(r=>r&&r.example)); }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,3200); }
+function addMin(hhmm,min){ const [h,m]=(hhmm||'15:30').split(':').map(Number); const t=h*60+m+min; return [Math.floor(t/60)%24,t%60]; }
+function fmtTime([h,m]){ const ap=h>=12?'PM':'AM'; const hh=((h+11)%12)+1; return hh+':'+String(m).padStart(2,'0')+' '+ap; }
+
+/* ---------- views ---------- */
+function banner(){
+  let out='';
+  if(loadNote) out+=`<div class="banner"><span class="sp">${esc(loadNote)}</span></div>`;
+  if(mode==='local') out+=`<div class="banner"><span class="sp"><b>Saved in this browser only.</b> Other coaches won’t see these changes until the team database is set up.</span></div>`;
+  if(mode==='shared' && fbUser && allLoaded && !readOnly && EX_COLS.every(c=>!Object.keys(S[c]).length) && !Object.keys(S.config).length)
+    out+=`<div class="banner"><span class="sp"><b>Your team database is empty.</b> Load the example program to try things out, or start adding your own players.</span><button class="btn small" data-act="load-examples">Load example data</button></div>`;
+  if(readOnly) out+=`<div class="banner"><span class="sp"><b>View only.</b> Ask the page owner for Contributor access to make changes.</span></div>`;
+  if(hasExamples() && !readOnly){
+    out+=`<div class="banner"><span class="sp"><b>Example data is loaded</b> so you can see how each page works. Clear it when you’re ready to enter your own program.</span>`+
+      (ui.confirmClear? `<span class="row"><span>Remove every example player, game, alum, donation and practice?</span><button class="btn small danger solid" data-act="clear-examples">Yes, clear examples</button><button class="btn small" data-act="cancel-clear">Keep</button></span>`
+      : `<button class="btn small" data-act="ask-clear">Clear example data</button>`)+`</div>`;
+  }
+  return out;
+}
+
+function viewRoster(){
+  const lvl=ui.level, list=playersAt(lvl).sort(byNum);
+  const nV=playersAt('varsity').length, nJ=playersAt('jv').length;
+  const rows=list.map(p=>`<tr>
+    <td><span class="jersey">${esc(p.number||'–')}</span></td>
+    <td><div class="name">${esc(p.name)}</div><div class="sub">${esc(POS_NAME[p.primary]||'')}</div></td>
+    <td><span class="pos">${esc(p.primary)}</span></td>
+    <td>${(p.secondary||[]).map(s=>`<span class="pos sec">${esc(s)}</span>`).join('')||'<span class="sub">—</span>'}</td>
+    <td>${esc(p.grade)}<span class="sub"> · ${GRADES[p.grade]||''}</span></td>
+    <td><span class="amount">${esc(p.bats||'?')}/${esc(p.throws||'?')}</span></td>
+    <td><div class="actions">
+      ${lvl==='jv'?`<button class="btn small" data-act="callup" data-id="${p.id}" ${readOnly?'disabled':''}>Call up</button>`:`<button class="btn small ghost" data-act="senddown" data-id="${p.id}" ${readOnly?'disabled':''}>Move to JV</button>`}
+      <button class="btn small" data-act="graduate" data-id="${p.id}" ${readOnly?'disabled':''}>Graduate</button>
+      <button class="btn small ghost" data-act="edit-player" data-id="${p.id}" ${readOnly?'disabled':''}>Edit</button>
+    </div></td></tr>`).join('');
+  const pc = POS.map(x=>[x.k,list.filter(p=>p.primary===x.k).length]).filter(x=>x[1]);
+  return `${banner()}
+  <div class="page-head">
+    <div><div class="eyebrow">${lvl==='varsity'?'Varsity':'Junior Varsity'} · ${list.length} players</div><h1>Roster</h1>
+    <p>${pc.map(([k,n])=>`${n} ${k}`).join(' · ')||'No players yet.'}</p></div>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Team">
+        <a href="#roster-varsity" ${lvl==='varsity'?'aria-current="page"':''}>Varsity<span class="count">${nV}</span></a>
+        <a href="#roster-jv" ${lvl==='jv'?'aria-current="page"':''}>JV<span class="count">${nJ}</span></a>
+      </div>
+      <button class="btn primary" data-act="add-player" ${readOnly?'disabled':''}>+ Add player</button>
+    </div>
+  </div>
+  ${list.length?`<div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Player</th><th>Primary</th><th>Secondary</th><th>Grade</th><th>B/T</th><th class="num">Actions</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`
+  : `<div class="card empty"><h3>No ${lvl==='varsity'?'varsity':'JV'} players yet</h3><p>Add players with their position, grade and jersey number. They’ll show up on the depth chart automatically.</p><div class="row"><button class="btn primary" data-act="add-player" ${readOnly?'disabled':''}>+ Add player</button></div></div>`}`;
+}
+
+function turfSVG(){
+  return `<svg class="turf" viewBox="0 0 1000 900" aria-hidden="true">
+    <path d="M500 830 L60 390 Q500 -40 940 390 Z" fill="var(--grass)"/>
+    <path d="M500 830 L60 390 Q500 -40 940 390 Z" fill="none" stroke="var(--grass-2)" stroke-width="0"/>
+    <path d="M500 830 L245 575 Q500 250 755 575 Z" fill="var(--dirt)" opacity=".9"/>
+    <path d="M500 760 L330 590 L500 420 L670 590 Z" fill="var(--grass-2)"/>
+    <circle cx="500" cy="595" r="34" fill="var(--dirt)"/>
+    <rect x="493" y="588" width="14" height="4" fill="var(--chalk)"/>
+    <path d="M500 830 L60 390 M500 830 L940 390" stroke="var(--chalk)" stroke-width="3"/>
+    <circle cx="500" cy="800" r="40" fill="var(--dirt)"/>
+    <path d="M490 790 h20 v10 l-10 10 l-10 -10 z" fill="var(--chalk)"/>
+    <rect x="660" y="580" width="20" height="20" transform="rotate(45 670 590)" fill="var(--chalk)"/>
+    <rect x="490" y="410" width="20" height="20" transform="rotate(45 500 420)" fill="var(--chalk)"/>
+    <rect x="320" y="580" width="20" height="20" transform="rotate(45 330 590)" fill="var(--chalk)"/>
+  </svg>`;
+}
+function viewDepth(){
+  const lvl=ui.depthLevel;
+  const spots=POS.map(({k,n})=>{
+    const list=depthFor(lvl,k); const [x,y]=SPOTS[k];
+    const opens=Math.max(0,3-list.length);
+    return `<section class="spot" style="left:${x/10}%;top:${y/9}%" aria-label="${n}">
+      <div class="pcard"><header><b>${k}</b><span>${n}</span></header>
+      <ul class="dlist" data-pos="${k}">${list.map((p,i)=>`<li data-id="${p.id}"><span class="nm">${esc(p.name)}</span><span class="no">#${esc(p.number)}</span>
+        <span class="mv"><button class="icon-btn" data-act="dup" data-pos="${k}" data-id="${p.id}" aria-label="Move ${esc(p.name)} up" ${i===0||readOnly?'disabled':''}>▲</button><button class="icon-btn" data-act="ddown" data-pos="${k}" data-id="${p.id}" aria-label="Move ${esc(p.name)} down" ${i===list.length-1||readOnly?'disabled':''}>▼</button></span></li>`).join('')}</ul>
+      ${Array.from({length:opens},()=>`<div class="open-spot">Open spot</div>`).join('')}
+      </div></section>`;
+  }).join('');
+  return `${banner()}
+  <div class="page-head">
+    <div><div class="eyebrow">${lvl==='varsity'?'Varsity':'Junior Varsity'}</div><h1>Depth Chart</h1>
+    <p>Each position lists the players whose primary position it is. Drag a name up or down to set the order; #1 is the starter.</p></div>
+    <div class="seg" role="group" aria-label="Team">
+      <button data-act="depth-level" data-lvl="varsity" aria-pressed="${lvl==='varsity'}">Varsity</button>
+      <button data-act="depth-level" data-lvl="jv" aria-pressed="${lvl==='jv'}">JV</button>
+    </div>
+  </div>
+  <div class="field">${turfSVG()}${spots}</div>
+  <div class="depth-legend"><span>To move a player to another position, change their primary position on the Roster page.</span></div>`;
+}
+
+function viewPractice(){
+  const id=ui.planDate, plan=S.plans[id];
+  const dates=Object.keys(S.plans).sort();
+  const prev=dates.filter(d=>d<id).pop() || dates.filter(d=>d!==id).pop();
+  const head=`<div class="page-head">
+    <div><div class="eyebrow">${esc(new Date(id+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))}</div><h1>Practice Plan</h1>
+    <p>Set each drill’s minutes and the schedule fills in from the start time. Check drills off as you run them.</p></div>
+    <div class="row">${dates.length?`<label class="f"><span>Saved plans</span><select id="plan-pick">${[...new Set([...dates,id])].sort().reverse().map(d=>`<option value="${d}" ${d===id?'selected':''}>${fmtDate(d)}</option>`).join('')}</select></label>`:''}
+    <label class="f"><span>Date</span><input type="date" id="plan-date" value="${id}"></label></div>
+  </div>`;
+  if(!plan){
+    return `${banner()}${head}<div class="card empty"><h3>No plan for ${fmtDate(id)}</h3><p>Start from the standard practice outline, copy a previous plan, or build one drill at a time.</p>
+      <div class="row"><button class="btn primary" data-act="plan-template" ${readOnly?'disabled':''}>Use standard outline</button>
+      ${prev?`<button class="btn" data-act="plan-copy" data-from="${prev}" ${readOnly?'disabled':''}>Copy ${fmtDate(prev)}</button>`:''}
+      <button class="btn" data-act="plan-blank" ${readOnly?'disabled':''}>Start blank</button></div></div>`;
+  }
+  const drills=plan.drills||[];
+  let t=0; const total=drills.reduce((a,d)=>a+(Number(d.minutes)||0),0);
+  const done=drills.filter(d=>d.done).length;
+  const firstOpen=drills.findIndex(d=>!d.done);
+  const rows=drills.map((d,i)=>{
+    const s=addMin(plan.start,t); t+=Number(d.minutes)||0; const e=addMin(plan.start,t);
+    return `<li class="drill ${d.done?'done':''} ${i===firstOpen?'now':''}">
+      <input type="checkbox" id="dk-${d.id}" data-act="drill-done" data-i="${i}" ${d.done?'checked':''} aria-label="Mark ${esc(d.name)} complete" ${readOnly?'disabled':''}>
+      <div class="time">${fmtTime(s)}<small>to ${fmtTime(e)}</small></div>
+      <input type="text" class="dname" id="dn-${d.id}" data-field="name" data-i="${i}" value="${esc(d.name)}" placeholder="Drill name" aria-label="Drill name" ${readOnly?'disabled':''}>
+      <div class="mins"><input type="number" min="0" max="240" step="5" id="dm-${d.id}" data-field="minutes" data-i="${i}" value="${esc(d.minutes)}" aria-label="Minutes" ${readOnly?'disabled':''}><span>min</span></div>
+      <input type="text" id="dt-${d.id}" data-field="notes" data-i="${i}" value="${esc(d.notes||'')}" placeholder="Notes, groups, equipment" aria-label="Notes" ${readOnly?'disabled':''}>
+      <div class="ctl"><button class="icon-btn" data-act="drill-up" data-i="${i}" aria-label="Move up" ${i===0||readOnly?'disabled':''}>▲</button><button class="icon-btn" data-act="drill-down" data-i="${i}" aria-label="Move down" ${i===drills.length-1||readOnly?'disabled':''}>▼</button><button class="icon-btn" data-act="drill-del" data-i="${i}" aria-label="Remove drill" ${readOnly?'disabled':''}>✕</button></div>
+    </li>`}).join('');
+  return `${banner()}${head}
+  <div class="card plan-bar">
+    <label class="f"><span>Start time</span><input type="time" id="plan-start" value="${esc(plan.start||'15:30')}" ${readOnly?'disabled':''}></label>
+    <div class="stat"><div class="k">Ends</div><div class="v">${fmtTime(addMin(plan.start,total))}</div></div>
+    <div class="stat"><div class="k">Scheduled</div><div class="v">${Math.floor(total/60)}h ${total%60}m</div></div>
+    <div class="stat"><div class="k">Completed · ${done} of ${drills.length}</div><div class="meter" style="margin-top:10px"><i style="width:${drills.length?done/drills.length*100:0}%"></i></div></div>
+  </div>
+  <div class="card">
+    <div class="drill-head"><span>Done</span><span>Time</span><span>Drill</span><span>Minutes</span><span>Notes</span><span></span></div>
+    <ol class="drills">${rows||'<li class="empty">No drills yet. Add the first one below.</li>'}</ol>
+  </div>
+  <div class="row" style="margin-top:14px;justify-content:space-between">
+    <button class="btn primary" data-act="drill-add" ${readOnly?'disabled':''}>+ Add drill</button>
+    <div class="row">${done?`<button class="btn ghost" data-act="plan-reset" ${readOnly?'disabled':''}>Uncheck all</button>`:''}<button class="btn ghost" data-act="plan-delete" ${readOnly?'disabled':''}>Delete this plan</button></div>
+  </div>`;
+}
+
+function viewAlumni(){
+  const q=ui.alumniQ.toLowerCase();
+  const list=Object.entries(S.alumni).map(([id,a])=>({id,...a}))
+    .filter(a=>!q||[a.name,a.email,a.phone,a.number,a.gradYear].join(' ').toLowerCase().includes(q))
+    .sort((a,b)=>(b.gradYear||0)-(a.gradYear||0)||a.name.localeCompare(b.name));
+  const total=Object.keys(S.alumni).length;
+  return `${banner()}
+  <div class="page-head">
+    <div><div class="eyebrow">${total} alumni</div><h1>Alumni</h1><p>Graduated players land here with their former jersey number. Keep contact details current for golf outings and sponsor asks.</p></div>
+    <div class="row"><input type="search" class="search" id="alumni-q" placeholder="Search name, email, class…" value="${esc(ui.alumniQ)}" aria-label="Search alumni">
+    <button class="btn primary" data-act="add-alum" ${readOnly?'disabled':''}>+ Add alum</button></div>
+  </div>
+  ${list.length?`<div class="table-wrap"><table>
+    <thead><tr><th>Former #</th><th>Name</th><th>Class</th><th>Email</th><th>Phone</th><th class="num"></th></tr></thead>
+    <tbody>${list.map(a=>`<tr>
+      <td><span class="jersey alt">${esc(a.number||'–')}</span></td>
+      <td class="name">${esc(a.name)}</td>
+      <td>${a.gradYear?`’${String(a.gradYear).slice(-2)}`:'<span class="sub">—</span>'}</td>
+      <td>${a.email?`<a href="mailto:${esc(a.email)}" style="color:var(--accent)">${esc(a.email)}</a> <button class="icon-btn" data-act="copy" data-v="${esc(a.email)}" aria-label="Copy email" title="Copy">⧉</button>`:'<span class="sub">—</span>'}</td>
+      <td style="white-space:nowrap">${a.phone?`${esc(a.phone)} <button class="icon-btn" data-act="copy" data-v="${esc(a.phone)}" aria-label="Copy phone" title="Copy">⧉</button>`:'<span class="sub">—</span>'}</td>
+      <td><div class="actions"><button class="btn small ghost" data-act="edit-alum" data-id="${a.id}" ${readOnly?'disabled':''}>Edit</button></div></td></tr>`).join('')}</tbody></table></div>`
+  : `<div class="card empty"><h3>${total?'No alumni match that search':'No alumni yet'}</h3><p>${total?'Try a different name or class year.':'Graduate a player from the Roster page, or add a former player here.'}</p></div>`}`;
+}
+
+function viewFunds(){
+  const cfg=S.config.fundraising||{};
+  const target=Number(cfg.target)||0;
+  const all=Object.entries(S.donations).map(([id,d])=>({id,...d})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const raised=all.reduce((a,d)=>a+(Number(d.amount)||0),0);
+  const pct=target?raised/target:0;
+  const R=88, C=2*Math.PI*R, shown=Math.min(pct,1);
+  const cur=cfg.currentCampaign||'';
+  const curList=all.filter(d=>d.campaign===cur);
+  const curRaised=curList.reduce((a,d)=>a+(Number(d.amount)||0),0);
+  const goal=Number(cfg.campaignGoal)||0;
+  const camps=[...new Set(all.map(d=>d.campaign).filter(Boolean))];
+  const shownList=ui.campFilter?all.filter(d=>d.campaign===ui.campFilter):all;
+  const shownTotal=shownList.reduce((a,d)=>a+(Number(d.amount)||0),0);
+  const daysLeft = cfg.campaignEnd? Math.ceil((new Date(cfg.campaignEnd+'T23:59')-new Date())/864e5) : null;
+  return `${banner()}
+  <div class="page-head">
+    <div><div class="eyebrow">Season fundraising</div><h1>Fund Raising</h1><p>Every donation counts toward the season target. The current campaign card totals only that campaign’s donations.</p></div>
+    <div class="row"><button class="btn" data-act="fund-settings" ${readOnly?'disabled':''}>Edit target & campaign</button>
+    <button class="btn primary" data-act="add-donation" ${readOnly?'disabled':''}>+ Record donation</button></div>
+  </div>
+  <div class="fund-top">
+    <div class="card donut-card">
+      <div class="donut" role="img" aria-label="${money(raised)} raised of ${money(target)} target">
+        <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="22"/>
+        <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--line)" stroke-width="22" stroke-opacity=".6"/>
+        <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--good)" stroke-width="22" stroke-linecap="${shown>0&&shown<1?'round':'butt'}" stroke-dasharray="${C*shown} ${C}"/></svg>
+        <div class="center"><div class="v">${target?Math.round(pct*100)+'%':'—'}</div><div class="k">of target</div></div>
+      </div>
+      <div class="legend">
+        <h3>Raised vs. target</h3>
+        <div class="li"><span class="sw" style="background:var(--good)"></span><span>Raised</span><span class="amt">${money(raised)}</span></div>
+        <div class="li"><span class="sw" style="background:var(--line)"></span><span>${raised>=target?'Over target':'Still to raise'}</span><span class="amt">${money(Math.abs(target-raised))}</span></div>
+        <div class="li" style="border-top:1px solid var(--line);padding-top:10px"><span></span><span class="name">Season target</span><span class="amt">${target?money(target):'Not set'}</span></div>
+        <div class="sub">${all.length} donations across ${camps.length} campaigns</div>
+      </div>
+    </div>
+    <div class="card camp-card">
+      ${cur?`<div class="row" style="justify-content:space-between"><span class="live">Running now</span>${daysLeft!=null?`<span class="chip">${daysLeft>0?daysLeft+' days left':daysLeft===0?'Ends today':'Ended '+fmtDate(cfg.campaignEnd)}</span>`:''}</div>
+      <h2>${esc(cur)}</h2>
+      <div><div class="eyebrow">Raised to date</div><div class="big">${money(curRaised)}</div></div>
+      ${goal?`<div><div class="meter"><i style="width:${Math.min(curRaised/goal,1)*100}%"></i></div><div class="sub" style="margin-top:6px">${Math.round(curRaised/goal*100)}% of the ${money(goal)} campaign goal</div></div>`:''}
+      <dl><div><dt>Donations</dt><dd>${curList.length}</dd></div><div><dt>Average</dt><dd>${money(curList.length?curRaised/curList.length:0)}</dd></div><div><dt>Last gift</dt><dd>${curList[0]?esc(fmtDate(curList[0].date).replace(/, \d{4}$/,'')):'—'}</dd></div></dl>`
+      : `<div class="empty"><h3>No campaign running</h3><p>Pick the campaign you’re running now to track it here.</p><div class="row"><button class="btn primary" data-act="fund-settings" ${readOnly?'disabled':''}>Set current campaign</button></div></div>`}
+    </div>
+  </div>
+  <div class="page-head" style="margin-bottom:10px"><h2>Transaction history</h2>
+    ${camps.length?`<label class="f" style="min-width:220px"><span>Campaign</span><select id="camp-filter"><option value="">All campaigns</option>${camps.map(c=>`<option ${c===ui.campFilter?'selected':''}>${esc(c)}</option>`).join('')}</select></label>`:''}</div>
+  ${shownList.length?`<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Campaign</th><th>Source</th><th class="num">Amount</th><th></th></tr></thead>
+    <tbody>${shownList.map(d=>`<tr><td style="white-space:nowrap">${esc(fmtDate(d.date))}</td><td><span class="chip ${d.campaign===cur?'cur':''}">${esc(d.campaign)}</span></td><td>${esc(d.source||'')}</td><td class="num amount">${money(d.amount)}</td>
+      <td><div class="actions"><button class="btn small ghost" data-act="edit-donation" data-id="${d.id}" ${readOnly?'disabled':''}>Edit</button></div></td></tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="3">${ui.campFilter?esc(ui.campFilter)+' total':'Total raised'}</td><td class="num amount">${money(shownTotal)}</td><td></td></tr></tfoot></table></div>`
+  : `<div class="card empty"><h3>No donations recorded</h3><p>Record each check, sponsorship or event deposit with its campaign.</p></div>`}`;
+}
+
+function gameResult(g){
+  if(g.us===''||g.us==null||g.them===''||g.them==null) return null;
+  const u=Number(g.us), t=Number(g.them); return {u,t,r:u>t?'W':u<t?'L':'T'};
+}
+function record(list){ const r={W:0,L:0,T:0}; list.forEach(g=>{ const x=gameResult(g); if(x) r[x.r]++; }); return r.W+'–'+r.L+(r.T?'–'+r.T:''); }
+function viewSchedule(){
+  const lvl=ui.schedLevel;
+  const all=Object.entries(S.games).map(([id,g])=>({id,...g})).filter(g=>(g.level||'varsity')===lvl)
+    .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const played=all.filter(g=>gameResult(g)||g.date<today);
+  const upcoming=all.filter(g=>!played.includes(g));
+  const next=upcoming[0];
+  const nV=Object.values(S.games).filter(g=>(g.level||'varsity')==='varsity').length, nJ=Object.values(S.games).filter(g=>g.level==='jv').length;
+  const row=g=>{ const x=gameResult(g);
+    return `<tr>
+      <td style="white-space:nowrap"><div class="name">${esc(new Date(g.date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}))}</div><div class="sub">${g.time?fmtTime(g.time.split(':').map(Number)):'Time TBA'}</div></td>
+      <td><div class="name">${g.site==='away'?'<span class="sub">@</span> ':'<span class="sub">vs.</span> '}${esc(g.opponent)}</div>${g.location?`<div class="sub">${esc(g.location)}</div>`:''}</td>
+      <td><span class="chip ${g.type==='league'?'cur':''}">${g.type==='league'?'League':'Non-conference'}</span></td>
+      <td>${g.site==='away'?'Away':'Home'}</td>
+      <td>${x?`<span class="res ${x.r}">${x.r}</span> <span class="amount">${x.u}–${x.t}</span>`:g.date<today?'<span class="sub">No score</span>':'<span class="sub">—</span>'}</td>
+      <td><div class="actions"><button class="btn small ghost" data-act="edit-game" data-id="${g.id}" ${readOnly?'disabled':''}>${!x&&g.date<=today?'Add score':'Edit'}</button></div></td></tr>`; };
+  const table=(list)=>`<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Opponent</th><th>Type</th><th>Home / Away</th><th>Result</th><th class="num"></th></tr></thead>
+    <tbody>${list.map(row).join('')}</tbody></table></div>`;
+  return `${banner()}
+  <div class="page-head">
+    <div><div class="eyebrow">${lvl==='varsity'?'Varsity':'Junior Varsity'} · ${all.length} games</div><h1>Schedule</h1>
+    <p>Overall <b class="amount">${record(all)}</b> · League <b class="amount">${record(all.filter(g=>g.type==='league'))}</b>${next?` · Next: ${next.site==='away'?'@':'vs.'} ${esc(next.opponent)}, ${esc(fmtDate(next.date).replace(/, \d{4}$/,''))}`:''}</p></div>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Team">
+        <button data-act="sched-level" data-lvl="varsity" aria-pressed="${lvl==='varsity'}">Varsity<span class="count">${nV}</span></button>
+        <button data-act="sched-level" data-lvl="jv" aria-pressed="${lvl==='jv'}">JV<span class="count">${nJ}</span></button>
+      </div>
+      <button class="btn primary" data-act="add-game" ${readOnly?'disabled':''}>+ Add game</button>
+    </div>
+  </div>
+  ${all.length?`${upcoming.length?`<h2 style="margin:0 0 10px">Upcoming</h2>${table(upcoming)}`:''}
+    ${played.length?`<h2 style="margin:24px 0 10px">Played</h2>${table(played.slice().reverse())}`:''}`
+  : `<div class="card empty"><h3>No ${lvl==='varsity'?'varsity':'JV'} games yet</h3><p>Add each game with its date, time, opponent, league or non-conference, and home or away.</p><div class="row"><button class="btn primary" data-act="add-game" ${readOnly?'disabled':''}>+ Add game</button></div></div>`}`;
+}
+
+function gameModal(id){
+  const g=id?S.games[id]:{date:'',time:'16:00',opponent:'',type:'league',site:'home',level:ui.schedLevel,location:'',us:'',them:''};
+  const radio=(name,val,label,cur)=>`<label><input type="radio" name="${name}" value="${val}" ${val===cur?'checked':''}>${label}</label>`;
+  openModal(id?'Edit game':'Add game',`
+    <label class="f"><span>Opponent</span><input type="text" name="opponent" id="gm-opp" value="${esc(g.opponent)}" autocomplete="off" placeholder="School name"></label>
+    <div class="grid2">
+      <label class="f"><span>Date</span><input type="date" name="date" id="gm-date" value="${esc(g.date)}"></label>
+      <label class="f"><span>First pitch</span><input type="time" name="time" id="gm-time" value="${esc(g.time)}"></label>
+    </div>
+    <div class="grid2">
+      <div class="f"><span class="eyebrow" style="font-weight:600">Game type</span><div class="checks">${radio('type','league','League',g.type)}${radio('type','nonconf','Non-conference',g.type)}</div></div>
+      <div class="f"><span class="eyebrow" style="font-weight:600">Home or away</span><div class="checks">${radio('site','home','Home',g.site)}${radio('site','away','Away',g.site)}</div></div>
+    </div>
+    <div class="grid2">
+      <label class="f"><span>Team</span><select name="level" id="gm-level">${opt('varsity','Varsity',g.level)}${opt('jv','JV',g.level)}</select></label>
+      <label class="f"><span>Field <span style="font-weight:400">(optional)</span></span><input type="text" name="location" id="gm-loc" value="${esc(g.location||'')}" autocomplete="off"></label>
+    </div>
+    ${id?`<div class="grid2">
+      <label class="f"><span>Our score</span><input type="number" name="us" id="gm-us" value="${esc(g.us)}" min="0" inputmode="numeric"></label>
+      <label class="f"><span>Their score</span><input type="number" name="them" id="gm-them" value="${esc(g.them)}" min="0" inputmode="numeric"></label>
+    </div>`:''}
+    <div class="err" role="alert"></div>
+    <div class="form-foot">${id?`<span id="rm-zone"><button type="button" class="btn danger" data-act="ask-remove-game">Remove game</button></span>`:'<span></span>'}
+      <span class="row"><button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit">${id?'Save changes':'Add game'}</button></span></div>`,
+  (fd)=>{
+    const opponent=(fd.get('opponent')||'').trim(), date=fd.get('date');
+    if(!opponent) return 'Enter the opponent.';
+    if(!date) return 'Pick the game date.';
+    const us=fd.get('us'), them=fd.get('them');
+    if(id && ((us===''||us==null)!==(them===''||them==null))) return 'Enter both scores, or leave both blank.';
+    const rec={...(id?S.games[id]:{}),opponent,date,time:fd.get('time')||'',type:fd.get('type')||'league',site:fd.get('site')||'home',level:fd.get('level'),location:(fd.get('location')||'').trim(),
+      us:us==null||us===''?'':Number(us), them:them==null||them===''?'':Number(them)};
+    delete rec.example; put('games',id||uid('g'),rec); if(!id) toast('Added '+(rec.site==='away'?'@ ':'vs. ')+opponent+' on '+fmtDate(date)+'.');
+  });
+  modalCtx.id=id;
+}
+
+const VIEWS={roster:viewRoster,schedule:viewSchedule,depth:viewDepth,practice:viewPractice,alumni:viewAlumni,fundraising:viewFunds};
+
+let sortables=[];
+function render(){
+  if(dragging){ needRender=true; return; }
+  const st=$('#status');
+  st.className='status '+(mode==='shared'?'shared':mode==='local'?'local':'');
+  st.querySelector('span').textContent= mode==='shared'?(fbUser?fbUser.email:(readOnly?'Shared · view only':'Shared with your staff'))+(fbUser&&readOnly?' · view only':''):mode==='local'?'This browser only':mode==='signin'?'Signed out':mode==='denied'?'No access':'Connecting…';
+  $('#signout').hidden=!fbUser;
+  if(mode==='signin'||mode==='denied'){ $('#main').innerHTML=mode==='signin'?viewSignin():viewDenied(); return; }
+  document.querySelectorAll('nav.tabs a').forEach(a=>{ if(a.dataset.view===ui.view) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  const ae=document.activeElement, fid=ae&&ae.id&&$('#main').contains(ae)?ae.id:null; let s0=null,s1=null;
+  try{ s0=ae.selectionStart; s1=ae.selectionEnd }catch(e){}
+  if(mode==='loading'){ $('#main').innerHTML='<div class="empty"><h3>Loading your program…</h3></div>'; return; }
+  $('#main').innerHTML=VIEWS[ui.view]();
+  sortables.forEach(s=>s.destroy()); sortables=[];
+  if(ui.view==='depth' && window.Sortable && !readOnly){
+    document.querySelectorAll('.dlist').forEach(el=>{
+      sortables.push(Sortable.create(el,{animation:150,ghostClass:'ghost',chosenClass:'chosen',filter:'button',preventOnFilter:false,delay:120,delayOnTouchOnly:true,
+        onStart:()=>{dragging=true},
+        onEnd:()=>{ dragging=false; saveDepth(ui.depthLevel,el.dataset.pos,[...el.children].map(li=>li.dataset.id)); }}));
+    });
+  }
+  if(fid){ const el=document.getElementById(fid); if(el){ el.focus({preventScroll:true}); try{ if(s0!=null) el.setSelectionRange(s0,s1) }catch(e){} } }
+}
+
+/* ---------- modals ---------- */
+function openModal(title,body,onSubmit){
+  $('#modal-root').innerHTML=`<div class="overlay" data-act="overlay"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="modal-head"><h2 id="m-title">${esc(title)}</h2><button class="icon-btn" data-act="close-modal" aria-label="Close">✕</button></div>
+    <form id="m-form" novalidate>${body}</form></div></div>`;
+  const f=$('#m-form');
+  f.addEventListener('submit',e=>{ e.preventDefault(); const err=onSubmit(new FormData(f),f); if(err){ f.querySelector('.err').textContent=err; } else closeModal(); });
+  const first=f.querySelector('input,select'); first&&first.focus();
+}
+function closeModal(){ $('#modal-root').innerHTML=''; }
+const opt=(v,label,sel)=>`<option value="${esc(v)}" ${String(v)===String(sel)?'selected':''}>${esc(label)}</option>`;
+
+function playerModal(id){
+  const p=id?S.players[id]:{name:'',number:'',primary:'',secondary:[],grade:'',bats:'R',throws:'R',level:ui.level};
+  openModal(id?'Edit player':'Add player',`
+    <label class="f"><span>Player name</span><input type="text" name="name" id="m-name" value="${esc(p.name)}" required autocomplete="off" placeholder="First and last name"></label>
+    <div class="grid3">
+      <label class="f"><span>Jersey #</span><input type="text" name="number" id="m-num" value="${esc(p.number)}" inputmode="numeric" maxlength="2" placeholder="00"></label>
+      <label class="f"><span>Grade</span><select name="grade" id="m-grade">${opt('','Select…',p.grade)}${[9,10,11,12].map(g=>opt(g,g+'th · '+GRADES[g],p.grade)).join('')}</select></label>
+      <label class="f"><span>Team</span><select name="level" id="m-level">${opt('varsity','Varsity',p.level)}${opt('jv','JV',p.level)}</select></label>
+    </div>
+    <label class="f"><span>Primary position</span><select name="primary" id="m-primary">${opt('','Select…',p.primary)}${POS.map(x=>opt(x.k,x.k+' · '+x.n,p.primary)).join('')}</select></label>
+    <div class="f"><span class="eyebrow" style="font-weight:600">Secondary positions</span><div class="checks" id="m-sec">${POS.map(x=>`<label><input type="checkbox" name="secondary" value="${x.k}" ${(p.secondary||[]).includes(x.k)?'checked':''} ${x.k===p.primary?'disabled':''}>${x.k}</label>`).join('')}</div></div>
+    <div class="grid2">
+      <label class="f"><span>Bats</span><select name="bats" id="m-bats">${opt('R','Right',p.bats)}${opt('L','Left',p.bats)}${opt('S','Switch',p.bats)}</select></label>
+      <label class="f"><span>Throws</span><select name="throws" id="m-throws">${opt('R','Right',p.throws)}${opt('L','Left',p.throws)}</select></label>
+    </div>
+    <div class="err" role="alert"></div>
+    <div class="form-foot">${id?`<span id="rm-zone"><button type="button" class="btn danger" data-act="ask-remove-player">Remove from program</button></span>`:'<span></span>'}
+      <span class="row"><button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit">${id?'Save changes':'Add player'}</button></span></div>`,
+  (fd)=>{
+    const name=(fd.get('name')||'').trim(), number=(fd.get('number')||'').trim(), primary=fd.get('primary'), grade=Number(fd.get('grade')), level=fd.get('level');
+    if(!name) return 'Enter the player’s name.';
+    if(!primary) return 'Choose a primary position.';
+    if(!grade) return 'Choose a grade.';
+    if(number && !/^\d{1,2}$/.test(number)) return 'Jersey numbers are one or two digits.';
+    const clash=playersAt(level).find(o=>o.id!==id && o.number===number && number);
+    if(clash) return `#${number} is already worn by ${clash.name} on ${level==='jv'?'JV':'varsity'}.`;
+    const rec={...(id?S.players[id]:{}),name,number,primary,secondary:fd.getAll('secondary').filter(s=>s!==primary),grade,bats:fd.get('bats'),throws:fd.get('throws'),level};
+    delete rec.example;
+    put('players',id||uid('p'),rec); toast(id?'Saved '+name+'.':'Added '+name+' to '+(level==='jv'?'JV':'varsity')+'.');
+  });
+  $('#m-primary').addEventListener('change',e=>{ document.querySelectorAll('#m-sec input').forEach(i=>{ i.disabled=i.value===e.target.value; if(i.disabled) i.checked=false; }); });
+  modalCtx.id=id;
+}
+const modalCtx={};
+
+function gradYearDefault(){ const d=new Date(); return d.getMonth()>=6?d.getFullYear()+1:d.getFullYear(); }
+function graduateModal(id){
+  const p=S.players[id];
+  openModal('Graduate '+p.name,`
+    <p style="margin:0;color:var(--muted)">${esc(p.name)} (#${esc(p.number||'–')}, ${esc(p.primary)}) moves off the roster and depth chart and into Alumni with their former jersey number.</p>
+    <label class="f"><span>Class year</span><input type="number" name="gradYear" id="g-year" value="${gradYearDefault()}" min="1950" max="2100"></label>
+    <div class="grid2">
+      <label class="f"><span>Email</span><input type="email" name="email" id="g-email" placeholder="name@example.com" autocomplete="off"></label>
+      <label class="f"><span>Phone</span><input type="tel" name="phone" id="g-phone" placeholder="(555) 555-0100" autocomplete="off"></label>
+    </div>
+    <div class="err" role="alert"></div>
+    <div class="form-foot"><span></span><span class="row"><button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit">Graduate to Alumni</button></span></div>`,
+  (fd)=>{
+    const email=(fd.get('email')||'').trim();
+    if(email && !/^\S+@\S+\.\S+$/.test(email)) return 'That email address doesn’t look complete.';
+    put('alumni',uid('a'),{name:p.name,email,phone:(fd.get('phone')||'').trim(),number:p.number||'',gradYear:Number(fd.get('gradYear'))||null,position:p.primary});
+    removePlayer(id); toast(p.name+' graduated to Alumni.');
+  });
+}
+function removePlayer(id){
+  const p=S.players[id]; if(!p) return;
+  const d=clone(S.config.depth); let changed=false;
+  for(const lvl in d) for(const pos in d[lvl]){ const i=d[lvl][pos].indexOf(id); if(i>=0){ d[lvl][pos].splice(i,1); changed=true; } }
+  if(changed) put('config','depth',d,{silent:true});
+  del('players',id);
+}
+
+function alumModal(id){
+  const a=id?S.alumni[id]:{name:'',email:'',phone:'',number:'',gradYear:''};
+  openModal(id?'Edit alum':'Add alum',`
+    <label class="f"><span>Name</span><input type="text" name="name" id="al-name" value="${esc(a.name)}" autocomplete="off"></label>
+    <div class="grid2">
+      <label class="f"><span>Former jersey #</span><input type="text" name="number" id="al-num" value="${esc(a.number)}" inputmode="numeric" maxlength="2"></label>
+      <label class="f"><span>Class year</span><input type="number" name="gradYear" id="al-year" value="${esc(a.gradYear||'')}" min="1950" max="2100"></label>
+    </div>
+    <div class="grid2">
+      <label class="f"><span>Email</span><input type="email" name="email" id="al-email" value="${esc(a.email)}" autocomplete="off"></label>
+      <label class="f"><span>Phone</span><input type="tel" name="phone" id="al-phone" value="${esc(a.phone)}" autocomplete="off"></label>
+    </div>
+    <div class="err" role="alert"></div>
+    <div class="form-foot">${id?`<span id="rm-zone"><button type="button" class="btn danger" data-act="ask-remove-alum">Remove</button></span>`:'<span></span>'}
+      <span class="row"><button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit">${id?'Save changes':'Add alum'}</button></span></div>`,
+  (fd)=>{
+    const name=(fd.get('name')||'').trim(), email=(fd.get('email')||'').trim();
+    if(!name) return 'Enter a name.';
+    if(email && !/^\S+@\S+\.\S+$/.test(email)) return 'That email address doesn’t look complete.';
+    const rec={...(id?S.alumni[id]:{}),name,email,phone:(fd.get('phone')||'').trim(),number:(fd.get('number')||'').trim(),gradYear:Number(fd.get('gradYear'))||null};
+    delete rec.example; put('alumni',id||uid('a'),rec);
+  });
+  modalCtx.id=id;
+}
+
+function campaignNames(){ const cfg=S.config.fundraising||{}; return [...new Set([cfg.currentCampaign,...Object.values(S.donations).map(d=>d.campaign)].filter(Boolean))]; }
+function donationModal(id){
+  const cfg=S.config.fundraising||{};
+  const d=id?S.donations[id]:{date:today,campaign:cfg.currentCampaign||'',amount:'',source:''};
+  openModal(id?'Edit donation':'Record donation',`
+    <div class="grid2">
+      <label class="f"><span>Date</span><input type="date" name="date" id="dn-date" value="${esc(d.date)}"></label>
+      <label class="f"><span>Amount ($)</span><input type="number" name="amount" id="dn-amt" value="${esc(d.amount)}" min="0" step="1" inputmode="decimal" placeholder="250"></label>
+    </div>
+    <label class="f"><span>Campaign</span><input type="text" name="campaign" id="dn-camp" list="camp-list" value="${esc(d.campaign)}" autocomplete="off"><datalist id="camp-list">${campaignNames().map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label>
+    <label class="f"><span>Source <span style="font-weight:400">(donor, sponsor or event — optional)</span></span><input type="text" name="source" id="dn-src" value="${esc(d.source||'')}" autocomplete="off"></label>
+    <div class="err" role="alert"></div>
+    <div class="form-foot">${id?`<span id="rm-zone"><button type="button" class="btn danger" data-act="ask-remove-donation">Remove</button></span>`:'<span></span>'}
+      <span class="row"><button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit">${id?'Save changes':'Record donation'}</button></span></div>`,
+  (fd)=>{
+    const amount=Number(fd.get('amount')), campaign=(fd.get('campaign')||'').trim();
+    if(!(amount>0)) return 'Enter an amount greater than $0.';
+    if(!campaign) return 'Name the campaign this money belongs to.';
+    if(!fd.get('date')) return 'Pick the date it came in.';
+    const rec={...(id?S.donations[id]:{}),date:fd.get('date'),amount,campaign,source:(fd.get('source')||'').trim()};
+    delete rec.example; put('donations',id||uid('d'),rec); if(!id) toast('Recorded '+money(amount)+' for '+campaign+'.');
+  });
+  modalCtx.id=id;
+}
+function fundSettingsModal(){
+  const c=S.config.fundraising||{};
+  openModal('Target & current campaign',`
+    <label class="f"><span>Season fundraising target ($)</span><input type="number" name="target" id="fs-target" value="${esc(c.target||'')}" min="0" step="100"></label>
+    <label class="f"><span>Current campaign</span><input type="text" name="currentCampaign" id="fs-camp" list="camp-list2" value="${esc(c.currentCampaign||'')}" autocomplete="off" placeholder="e.g. Spring Sponsor Banners"><datalist id="camp-list2">${campaignNames().map(x=>`<option value="${esc(x)}">`).join('')}</datalist></label>
+    <div class="grid2">
+      <label class="f"><span>Campaign goal ($)</span><input type="number" name="campaignGoal" id="fs-goal" value="${esc(c.campaignGoal||'')}" min="0" step="100"></label>
+      <label class="f"><span>Campaign ends</span><input type="date" name="campaignEnd" id="fs-end" value="${esc(c.campaignEnd||'')}"></label>
+    </div>
+    <div class="err" role="alert"></div>
+    <div class="form-foot"><span></span><span class="row"><button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit">Save</button></span></div>`,
+  (fd)=>{
+    put('config','fundraising',{target:Number(fd.get('target'))||0,currentCampaign:(fd.get('currentCampaign')||'').trim(),campaignGoal:Number(fd.get('campaignGoal'))||0,campaignEnd:fd.get('campaignEnd')||''});
+  });
+}
+
+/* ---------- practice edits ---------- */
+function planEdit(fn,opt){ const id=ui.planDate; const p=clone(S.plans[id]); fn(p); delete p.example; put('plans',id,p,opt); }
+const newDrill=(name='',minutes=10)=>({id:uid('k'),name,minutes,done:false,notes:''});
+
+/* ---------- events ---------- */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, id=b.dataset.id;
+  if(act==='overlay' && e.target!==b) return;
+  switch(act){
+    case 'overlay': case 'close-modal': closeModal(); break;
+    case 'add-player': playerModal(null); break;
+    case 'edit-player': playerModal(id); break;
+    case 'graduate': graduateModal(id); break;
+    case 'callup': { const p=S.players[id]; put('players',id,{...p,level:'varsity'}); toast(p.name+' called up to varsity.'); break; }
+    case 'senddown': { const p=S.players[id]; put('players',id,{...p,level:'jv'}); toast(p.name+' moved to JV.'); break; }
+    case 'ask-remove-player': $('#rm-zone').innerHTML=`<span class="confirm-box">Remove without graduating? <button type="button" class="btn small danger solid" data-act="remove-player">Remove</button></span>`; break;
+    case 'remove-player': { const n=S.players[modalCtx.id]?.name; removePlayer(modalCtx.id); closeModal(); toast('Removed '+n+'.'); break; }
+    case 'add-game': gameModal(null); break;
+    case 'edit-game': gameModal(id); break;
+    case 'sched-level': ui.schedLevel=b.dataset.lvl; render(); break;
+    case 'ask-remove-game': $('#rm-zone').innerHTML=`<span class="confirm-box">Remove this game? <button type="button" class="btn small danger solid" data-act="remove-game">Remove</button></span>`; break;
+    case 'remove-game': del('games',modalCtx.id); closeModal(); break;
+    case 'add-alum': alumModal(null); break;
+    case 'edit-alum': alumModal(id); break;
+    case 'ask-remove-alum': $('#rm-zone').innerHTML=`<span class="confirm-box">Remove this alum? <button type="button" class="btn small danger solid" data-act="remove-alum">Remove</button></span>`; break;
+    case 'remove-alum': del('alumni',modalCtx.id); closeModal(); break;
+    case 'add-donation': donationModal(null); break;
+    case 'edit-donation': donationModal(id); break;
+    case 'ask-remove-donation': $('#rm-zone').innerHTML=`<span class="confirm-box">Remove this donation? <button type="button" class="btn small danger solid" data-act="remove-donation">Remove</button></span>`; break;
+    case 'remove-donation': del('donations',modalCtx.id); closeModal(); break;
+    case 'fund-settings': fundSettingsModal(); break;
+    case 'copy': try{ await navigator.clipboard.writeText(b.dataset.v); toast('Copied '+b.dataset.v); }catch(err){ toast(b.dataset.v); } break;
+    case 'depth-level': ui.depthLevel=b.dataset.lvl; render(); break;
+    case 'dup': case 'ddown': {
+      const pos=b.dataset.pos, ids=depthFor(ui.depthLevel,pos).map(p=>p.id), i=ids.indexOf(id), j=act==='dup'?i-1:i+1;
+      if(j<0||j>=ids.length) break; [ids[i],ids[j]]=[ids[j],ids[i]]; saveDepth(ui.depthLevel,pos,ids); break; }
+    case 'plan-template': put('plans',ui.planDate,{start:'15:30',drills:TEMPLATE.map(([n,m])=>newDrill(n,m))}); break;
+    case 'plan-blank': put('plans',ui.planDate,{start:'15:30',drills:[newDrill('',15)]}); break;
+    case 'plan-copy': { const src=S.plans[b.dataset.from]; put('plans',ui.planDate,{start:src.start,drills:(src.drills||[]).map(d=>({...d,id:uid('k'),done:false}))}); break; }
+    case 'plan-delete': if(b.dataset.confirm){ del('plans',ui.planDate); } else { b.dataset.confirm='1'; b.textContent='Click again to delete'; b.classList.add('danger'); } break;
+    case 'plan-reset': planEdit(p=>p.drills.forEach(d=>d.done=false)); break;
+    case 'drill-add': planEdit(p=>{ p.drills=p.drills||[]; p.drills.push(newDrill('',10)); }); setTimeout(()=>{ const ins=document.querySelectorAll('.dname'); ins[ins.length-1]?.focus(); },0); break;
+    case 'drill-del': planEdit(p=>p.drills.splice(+b.dataset.i,1)); break;
+    case 'drill-up': case 'drill-down': { const i=+b.dataset.i, j=act==='drill-up'?i-1:i+1; planEdit(p=>{ [p.drills[i],p.drills[j]]=[p.drills[j],p.drills[i]]; }); break; }
+    case 'ask-clear': ui.confirmClear=true; render(); break;
+    case 'cancel-clear': ui.confirmClear=false; render(); break;
+    case 'clear-examples': {
+      ui.confirmClear=false;
+      for(const c of EX_COLS) for(const [k,r] of Object.entries(S[c])) if(r&&r.example) del(c,k);
+      put('config','depth',{}); put('config','fundraising',{target:0,currentCampaign:'',campaignGoal:0,campaignEnd:''});
+      toast('Example data cleared. Start by adding your players.'); break; }
+    case 'load-examples': {
+      const ex=clone(SAMPLE);
+      for(const c of COLS) for(const [k,r] of Object.entries(ex[c]||{})) put(c,k,r,{silent:true});
+      render(); toast('Example program loaded.'); break; }
+    case 'signin':
+      try{ await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+      catch(err){ if(err&&err.code!=='auth/popup-closed-by-user') toast(err&&err.code==='auth/unauthorized-domain'?'This web address isn’t on the Firebase authorized domains list yet.':'Sign-in didn’t finish. Try again.'); }
+      break;
+    case 'signout': try{ await firebase.auth().signOut(); }catch(err){} break;
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.act==='drill-done'){ planEdit(p=>{ p.drills[+t.dataset.i].done=t.checked; }); return; }
+  if(t.id==='plan-date' && t.value){ ui.planDate=t.value; render(); return; }
+  if(t.id==='plan-pick'){ ui.planDate=t.value; render(); return; }
+  if(t.id==='plan-start' && t.value){ planEdit(p=>{ p.start=t.value; }); return; }
+  if(t.id==='camp-filter'){ ui.campFilter=t.value; render(); return; }
+  if(t.dataset.field==='minutes'){ render(); return; }
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='alumni-q'){ ui.alumniQ=t.value; render(); return; }
+  if(t.dataset.field && ui.view==='practice'){
+    const i=+t.dataset.i, f=t.dataset.field, v=f==='minutes'?Math.max(0,Number(t.value)||0):t.value;
+    planEdit(p=>{ p.drills[i][f]=v; },{silent:true,debounce:700});
+  }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $('#modal-root').innerHTML) closeModal(); });
+
+function route(){
+  const h=(location.hash||'#roster').slice(1);
+  if(h==='roster-jv'){ ui.view='roster'; ui.level='jv'; }
+  else if(h==='roster-varsity'||h==='roster'){ ui.view='roster'; if(h==='roster-varsity') ui.level='varsity'; }
+  else if(VIEWS[h]) ui.view=h;
+  else ui.view='roster';
+  render(); window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+
+async function init(){
+  route();
+  const cfg=window.FIREBASE_CONFIG;
+  if(cfg && cfg.apiKey && !/^YOUR_/.test(cfg.apiKey)) return initFirebase(cfg);
+  let d=null;
+  try{ if(window.claude && window.claude.use) d=await window.claude.use('db'); }catch(e){ d=null; }
+  if(d){ db=d; mode='shared'; render(); subscribe(); }
+  else { mode='local'; loadLocal(); render(); }
+}
+init();
+</script>
+</body>
+</html>

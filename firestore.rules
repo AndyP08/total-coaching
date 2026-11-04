@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// Only coaches on the staff list can read or change anything.
+// Add each coach's Google account email, in lowercase, then click Publish in the Firebase console.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isStaff() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in [
+          'headcoach@example.com',
+          'assistant@example.com'
+        ];
+    }
+
+    match /{document=**} {
+      allow read, write: if isStaff();
+    }
+  }
+}
