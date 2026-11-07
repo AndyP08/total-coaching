@@ -1,4 +1,4 @@
-# Dugout Desk
+# Total Coaching
 
 A website for running a high school baseball program: roster (varsity and JV), schedule, depth chart, practice plans, alumni and fundraising.
 
@@ -8,8 +8,8 @@ It's a single page (`index.html`) hosted on GitHub Pages. Team data is stored in
 
 ### 1. Create the Firebase project (free Spark plan)
 
-1. Go to <https://console.firebase.google.com> and click **Create a project**. Name it something like `dugout-desk`. You can turn off Google Analytics.
-2. On the project home page, click the **Web** icon (`</>`) to add a web app. Name it `Dugout Desk`. You don't need Firebase Hosting.
+1. Go to <https://console.firebase.google.com> and click **Create a project**. Name it something like `total-coaching`. You can turn off Google Analytics.
+2. On the project home page, click the **Web** icon (`</>`) to add a web app. Name it `Total Coaching`. You don't need Firebase Hosting.
 3. Firebase shows a `firebaseConfig` block. Copy its values into [`firebase-config.js`](firebase-config.js), replacing each `YOUR_...` placeholder.
 
 ### 2. Create the database
