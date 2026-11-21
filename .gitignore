@@ -1,2 +1,8 @@
 .DS_Store
 .claude/
+
+# Real staff list (deployed from here; kept out of the public repo)
+firestore.local.rules
+# Firebase CLI
+.firebase/
+firebase-debug.log

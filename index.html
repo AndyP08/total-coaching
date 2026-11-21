@@ -977,8 +977,8 @@ document.addEventListener('click',async e=>{
       for(const c of COLS) for(const [k,r] of Object.entries(ex[c]||{})) put(c,k,r,{silent:true});
       render(); toast('Example program loaded.'); break; }
     case 'signin':
-      try{ await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-      catch(err){ if(err&&err.code!=='auth/popup-closed-by-user') toast(err&&err.code==='auth/unauthorized-domain'?'This web address isn’t on the Firebase authorized domains list yet.':'Sign-in didn’t finish. Try again.'); }
+      try{ const gp=new firebase.auth.GoogleAuthProvider(); gp.setCustomParameters({prompt:'select_account'}); await firebase.auth().signInWithPopup(gp); }
+      catch(err){ console.error('Sign-in failed', err); if(err&&err.code!=='auth/popup-closed-by-user') toast(err&&err.code==='auth/unauthorized-domain'?'This web address isn’t on the Firebase authorized domains list yet.':`Sign-in didn’t finish (${(err&&err.code)||'unknown error'}). Try again.`); }
       break;
     case 'signout': try{ await firebase.auth().signOut(); }catch(err){} break;
   }

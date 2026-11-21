@@ -21,6 +21,13 @@ It's a single page (`index.html`) hosted on GitHub Pages. Team data is stored in
 
 To add or remove a coach later, edit that list in the **Rules** tab and click **Publish** again.
 
+#### Or deploy the rules from this folder
+
+This folder is linked to the `total-coaching` project (see `.firebaserc`), and `firebase.json` deploys the rules from `firestore.local.rules`. That file holds the real staff list and is in `.gitignore`, so coaches' emails stay out of this public repository. The committed `firestore.rules` is the template with example emails.
+
+1. Copy `firestore.rules` to `firestore.local.rules`, if it isn't there yet, and put the coaches' emails in it.
+2. Run `firebase deploy --only firestore:rules`.
+
 ### 3. Turn on Google sign-in
 
 1. Open **Build → Authentication**, click **Get started**, choose **Google**, turn it on and click **Save**.
